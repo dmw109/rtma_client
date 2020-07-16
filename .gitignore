@@ -1,6 +1,9 @@
 .vs
 *.ipdb
 *.pdb
-objs
-intermediates
+objs/
+intermediates/
+*.log
+*.tlog
 *.exe
+*.obj

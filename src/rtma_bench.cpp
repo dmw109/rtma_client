@@ -69,7 +69,7 @@ int publisher_loop(int id, char* server, int port, int num_msgs, int msg_size, i
 	int subscribers_ready = 0;
 	Message msg;
 	while (subscribers_ready < num_subscribers) {
-		if (rtma_client_read_message(c, &msg, -1)) {
+		if (rtma_client_read_message(c, &msg, BLOCKING)) {
 			switch (MSG_TYPE(msg)) {
 			case MT_SUBSCRIBER_READY:
 				subscribers_ready++;
