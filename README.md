@@ -1,5 +1,5 @@
-# rtma_c_api
-RTMA client implementation in C. Work in progress...
+# rtma_client
+RTMA client implementation in C. Basic functionality works for windows.  Still need to test for linux.  Work in progress...
 
 ## Usage
 ```C
