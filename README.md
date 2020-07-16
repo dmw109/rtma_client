@@ -1,5 +1,5 @@
 # rtma_c_api
-RTMA client implementation in C.
+RTMA client implementation in C. Work in progress...
 
 ## Usage
 ```C
