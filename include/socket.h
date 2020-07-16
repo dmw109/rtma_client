@@ -19,6 +19,8 @@ typedef SOCKET sockfd_t;
 typedef int sa_family_t;
 typedef int socklen_t;
 
+#define gai_strerror(x) gai_strerrorA(x)
+
 #pragma comment(lib, "Ws2_32.lib")
 
 void winsock_init();
@@ -48,10 +50,9 @@ void winsock_cleanup();
 
 typedef int sockfd_t;
 
-void socket_error() {
-	perror(strerror(errno));
-	exit(EXIT_FAILURE);
-}
+#define SD_BOTH SHUT_RDWR
+#define SD_SEND SHUT_WR
+#define SD_RECEIVE SHUT_RD
 
 #endif //_UNIX_C
 
@@ -82,4 +83,4 @@ sa_family_t get_address_family(const char* node);
 }
 #endif
 
-#endif _SOCKET_H
+#endif //_SOCKET_H

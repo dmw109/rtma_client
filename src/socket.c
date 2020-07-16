@@ -49,7 +49,7 @@ void winsock_cleanup() {
 }
 
 //Print an error message and kill the program
-void socket_error() {
+void socket_error(void) {
 	char    msg_buf[512];	// Buffer for text.
     DWORD   nchars;			// Number of chars returned.
 	
@@ -78,7 +78,7 @@ void socket_error() {
 
 #ifdef _UNIX_C
 
-void socket_error() {
+void socket_error(void) {
 	perror(strerror(errno));
 	exit(EXIT_FAILURE);
 }
@@ -195,7 +195,7 @@ sa_family_t get_address_family(const char *node) {
 	int ret = getaddrinfo(node, NULL, &hints, &res);
 
 	if (ret) {
-		perror(gai_strerrorA(ret));
+		perror(gai_strerror(ret));
 		exit(1);
 	}
 	

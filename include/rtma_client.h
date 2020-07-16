@@ -13,10 +13,11 @@
 #define MAX_DATA_BYTES 4096
 
 #ifdef _WINDOWS_C
-
 #endif //_WINDOWS_C
 
 #ifdef _UNIX_C
+#define TRUE 1
+#define FALSE 0
 
 #endif //_UNIX_C
 

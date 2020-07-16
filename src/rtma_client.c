@@ -91,7 +91,7 @@ void rtma_client_connect(Client *c, char* server_name, uint16_t port) {
 	int ret = getaddrinfo(server_name, port_str, &hints, &res);
 
 	if (ret) {
-		perror(gai_strerrorA(ret));
+		perror(gai_strerror(ret));
 		exit(1);
 	}
 
@@ -103,8 +103,8 @@ void rtma_client_connect(Client *c, char* server_name, uint16_t port) {
 	socket_setsockopt(c->sockfd, IPPROTO_TCP, TCP_NODELAY, &optval, sizeof(optval));
 
 	int opt = 0;
-	size_t optlen = sizeof(opt);
-	socket_getsockopt(c->sockfd, IPPROTO_TCP, TCP_NODELAY, (char *)&opt, &optlen);
+	socklen_t optlen = sizeof(opt);
+	socket_getsockopt(c->sockfd, IPPROTO_TCP, TCP_NODELAY, &opt, &optlen);
 
 	if (opt != TRUE) {
 		perror("Unable to set TCP_NODELAY socket option.\n");
@@ -112,7 +112,7 @@ void rtma_client_connect(Client *c, char* server_name, uint16_t port) {
 	}
 
 	memset(&c->serv_addr, '\0', sizeof(c->serv_addr));
-	memcpy_s(&c->serv_addr, sizeof(c->serv_addr), res->ai_addr, res->ai_addrlen);
+	memcpy(&c->serv_addr, res->ai_addr, res->ai_addrlen);
 
 	freeaddrinfo(res);
 
@@ -170,8 +170,14 @@ int rtma_client_send_message(Client *c, MSG_TYPE msg_type, void* data, size_t le
 	msg.rtma_header.reserved = 0;
 
 	// Copy the user data into message struct buffer.
-	if (len > 0)
-		memcpy_s(msg.data, sizeof(msg.data), data, len);
+	if (len > 0){
+		if (len < sizeof(msg.data))
+			memcpy(msg.data, data, len);
+		else {
+			perror("rtma_client_send_message: data is too large.\n");
+			exit(1);
+		}
+	}
 
 	//rtma_message_print((Message*)&header);
 
@@ -194,8 +200,15 @@ int rtma_client_send_message_to_module(Client *c, MSG_TYPE msg_type, void* data,
 	msg.rtma_header.is_dynamic = 0;
 	msg.rtma_header.reserved = 0;
 
-	if (len > 0)
-		memcpy_s(msg.data, sizeof(msg.data), data, len);
+	// Copy the user data into message struct buffer.
+	if (len > 0){
+		if (len < sizeof(msg.data))
+			memcpy(msg.data, data, len);
+		else {
+			perror("rtma_client_send_message: data is too large.\n");
+			exit(1);
+		}
+	}
 }
 
 int  rtma_client_send_signal(Client *c, Signal sig_type) {
