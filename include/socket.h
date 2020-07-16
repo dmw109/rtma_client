@@ -6,7 +6,7 @@
 #include <stddef.h>
 
 #ifdef _WINDOWS_C
-
+#undef UNICODE
 #ifndef WIN32_LEAN_AND_MEAN
 #define WIN32_LEAN_AND_MEAN
 #endif
@@ -18,8 +18,6 @@
 typedef SOCKET sockfd_t;
 typedef int sa_family_t;
 typedef int socklen_t;
-
-#define gai_strerror(x) gai_strerrorA(x)
 
 #pragma comment(lib, "Ws2_32.lib")
 
