@@ -1,0 +1,6 @@
+.vs
+*.ipdb
+*.pdb
+objs
+intermediates
+*.exe
