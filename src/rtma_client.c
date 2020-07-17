@@ -154,17 +154,17 @@ void rtma_client_disconnect(Client *c) {
 	}
 }
 
-int rtma_client_send_message(Client *c, MSG_TYPE msg_type, void* data, size_t len) {
+int rtma_client_send_message_to_module(Client *c, MSG_TYPE msg_type, void* data, size_t len, int dest_mod_id, int dest_host_id, double timeout) {
 	Message msg;
-	
+
 	msg.rtma_header.msg_type = msg_type;
 	msg.rtma_header.msg_count = ++(c->msg_count);
 	msg.rtma_header.send_time = rtma_client_get_timestamp(c);
 	msg.rtma_header.recv_time = 0.0;
 	msg.rtma_header.src_host_id = c->host_id;
 	msg.rtma_header.src_mod_id = c->module_id;
-	msg.rtma_header.dest_host_id = 0;
-	msg.rtma_header.dest_mod_id = 0;
+	msg.rtma_header.dest_host_id = dest_host_id;
+	msg.rtma_header.dest_mod_id = dest_mod_id;
 	msg.rtma_header.num_data_bytes = len;
 	msg.rtma_header.is_dynamic = 0;
 	msg.rtma_header.reserved = 0;
@@ -180,7 +180,6 @@ int rtma_client_send_message(Client *c, MSG_TYPE msg_type, void* data, size_t le
 	}
 
 	struct timeval wait, * pWait;
-	double timeout = -1;
 	if (timeout < 0) { // Negative timeout value means we are willing to wait forever
 		pWait = NULL;
 	}
@@ -214,42 +213,20 @@ int rtma_client_send_message(Client *c, MSG_TYPE msg_type, void* data, size_t le
 			printf("x");
 		}
 	}
-	
+
 	return nbytes;
 }
 
-int rtma_client_send_message_to_module(Client *c, MSG_TYPE msg_type, void* data, size_t len, int dest_mod_id, int dest_host_id) {
-	Message msg;
-
-	msg.rtma_header.msg_type = msg_type;
-	msg.rtma_header.msg_count = ++(c->msg_count);
-	msg.rtma_header.send_time = rtma_client_get_timestamp(c);
-	msg.rtma_header.recv_time = 0.0;
-	msg.rtma_header.src_host_id = c->host_id;
-	msg.rtma_header.src_mod_id = c->module_id;
-	msg.rtma_header.dest_host_id = dest_host_id;
-	msg.rtma_header.dest_mod_id = dest_mod_id;
-	msg.rtma_header.num_data_bytes = len;
-	msg.rtma_header.is_dynamic = 0;
-	msg.rtma_header.reserved = 0;
-
-	// Copy the user data into message struct buffer.
-	if (len > 0){
-		if (len < sizeof(msg.data))
-			memcpy(msg.data, data, len);
-		else {
-			perror("rtma_client_send_message: data is too large.\n");
-			exit(1);
-		}
-	}
-
-	rtma_client_send_message(c, msg_type, data, len);
+int rtma_client_send_signal_to_module(Client* c, Signal sig_type, int dest_mod_id, int dest_host_id, double timeout) {
+	return rtma_client_send_message_to_module(c, sig_type, NULL, 0, dest_mod_id, dest_host_id, timeout);
 }
 
-int  rtma_client_send_signal(Client *c, Signal sig_type) {
-	int nbytes = rtma_client_send_message(c, sig_type, NULL, 0);
+int rtma_client_send_message(Client* c, MSG_TYPE msg_type, void* data, size_t len) {
+	return rtma_client_send_message_to_module(c, msg_type, data, len, MID_MESSAGE_MANAGER, HID_LOCAL_HOST, BLOCKING);
+}
 
-	return nbytes;
+int rtma_client_send_signal(Client *c, Signal sig_type) {
+	return rtma_client_send_signal_to_module(c, sig_type, NULL, 0, MID_MESSAGE_MANAGER, HID_LOCAL_HOST, BLOCKING);
 }
 
 int rtma_client_read_message(Client *c, Message *msg, double timeout) {
