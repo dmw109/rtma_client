@@ -1,6 +1,8 @@
 # rtma_client
 RTMA client implementation in C. Basic functionality works for windows.  Still need to test for linux.  Work in progress...
 
+The header file supports compilation to a windows dll or static lib when the appropriate macros are set. Set RTMA_C_EXPORTS for .dll or _STATIC_LIB for .lib.
+
 ## Usage
 ```C
 #include "rtma_client.h"
