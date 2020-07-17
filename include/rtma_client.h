@@ -75,9 +75,6 @@ typedef MSG_TYPE Signal;
 #define HID_LOCAL_HOST  0
 #define HID_ALL_HOSTS   0x7FFF
 
-typedef char STRING_DATA[];   //message data type for variable length string messages
-//typedef char* STRING_DATA;   //message data type for variable length string messages
-
 // Used for subscribing to all message types
 #define ALL_MESSAGE_TYPES  0x7FFFFFFF
 // Messages sent by MessageManager to modules
