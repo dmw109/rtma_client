@@ -9,7 +9,7 @@ void winsock_init() {
 	int err;
 
 	// Winsock version 2.2
-	WORD version_required = MAKEWORD(2, 0);
+	WORD version_required = MAKEWORD(2, 2);
 
 	err = WSAStartup(version_required, &wsaData);
 	switch (err) {
@@ -36,7 +36,7 @@ void winsock_init() {
 	}
 
 	// Confirm that winsock DLL supports version 2.2
-	if (LOBYTE(wsaData.wVersion) != 2 || HIBYTE(wsaData.wVersion) != 0) {
+	if (LOBYTE(wsaData.wVersion) != 2 || HIBYTE(wsaData.wVersion) != 2) {
 		perror("Could not find a usable version of Winsock.dll\n");
 		WSACleanup();
 		exit(EXIT_FAILURE);
