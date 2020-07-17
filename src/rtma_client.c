@@ -179,9 +179,42 @@ int rtma_client_send_message(Client *c, MSG_TYPE msg_type, void* data, size_t le
 		}
 	}
 
-	//rtma_message_print((Message*)&header);
+	struct timeval wait, * pWait;
+	double timeout = -1;
+	if (timeout < 0) { // Negative timeout value means we are willing to wait forever
+		pWait = NULL;
+	}
+	else {
+		wait.tv_sec = (long)timeout;
+		double remainder = timeout - ((double)(wait.tv_sec));
+		wait.tv_usec = (long)(remainder * 1000000.0);
+		pWait = &wait;
+	}
 
-	int nbytes = socket_sendall(c->sockfd, (char *)&msg, sizeof(msg.rtma_header) + len, 0);
+	fd_set writefds;
+	FD_ZERO(&writefds);
+	FD_SET(c->sockfd, &writefds);
+	int nfds = c->sockfd + 1;
+
+	int nbytes = 0;
+
+	// Wait for socket
+	int status = select(nfds, NULL, &writefds, NULL, pWait);
+
+	if (status == SOCKET_ERROR)
+		socket_error();
+	if (status == 0)
+		return NO_MESSAGE;
+	if (status > 0) {
+		if (FD_ISSET(c->sockfd, &writefds)) {
+			nbytes = socket_sendall(c->sockfd, (char*)&msg, sizeof(msg.rtma_header) + len, 0);
+		}
+		else {
+			//Socket could not accept data without blocking, data discarded!
+			printf("x");
+		}
+	}
+	
 	return nbytes;
 }
 
@@ -209,23 +242,13 @@ int rtma_client_send_message_to_module(Client *c, MSG_TYPE msg_type, void* data,
 			exit(1);
 		}
 	}
+
+	rtma_client_send_message(c, msg_type, data, len);
 }
 
 int  rtma_client_send_signal(Client *c, Signal sig_type) {
-	RTMA_MSG_HEADER header = {
-			.msg_type = sig_type,
-			.msg_count = c->msg_count,
-			.send_time = rtma_client_get_timestamp(c),
-			.recv_time = 0.0,
-			.src_host_id = c->host_id,
-			.src_mod_id = c->module_id,
-			.dest_host_id = 0,
-			.dest_mod_id = 0,
-			.num_data_bytes = 0,
-			.is_dynamic = 0,
-			.reserved = 0 };
+	int nbytes = rtma_client_send_message(c, sig_type, NULL, 0);
 
-	int nbytes = socket_sendall(c->sockfd, (void *)&header, sizeof(header), 0);
 	return nbytes;
 }
 
@@ -253,34 +276,32 @@ int rtma_client_read_message(Client *c, Message *msg, double timeout) {
 		socket_error();
 	if (status == 0)
 		return NO_MESSAGE;
-	if (status == 1) {
-		int bytes_left = sizeof(RTMA_MSG_HEADER);
-		char* buf = (char *)&(msg->rtma_header);
-		while (bytes_left > 0) {
-			int bytes_read = socket_recv(c->sockfd, buf, bytes_left, 0);
-			bytes_left -= bytes_read;
-			buf += bytes_read;
+	if (status > 0) {
+		if (FD_ISSET(c->sockfd, &readfds)) {
+			int bytes_left = sizeof(RTMA_MSG_HEADER);
+			char* buf = (char*)&(msg->rtma_header);
+			int bytes_read = socket_recv(c->sockfd, buf, bytes_left, MSG_WAITALL);
+
+			if (bytes_read != bytes_left) {
+				fprintf(stderr, "Something went wrong in recv:header\n");
+				exit(-1);
+			}
 		}
+		else
+			return NO_MESSAGE;
 	}
 
-	// Check for data portion of message
+	// Check for data portion of message (Always blocking)
 	if (msg->rtma_header.num_data_bytes > 0) {
-
-		FD_ZERO(&readfds);
-		FD_SET(c->sockfd, &readfds);
-
-		// Wait for data and check for errors
-		int status = select(nfds, &readfds, NULL, NULL, NULL);
-		if (status == SOCKET_ERROR)
-			socket_error();
-
 		int bytes_left = msg->rtma_header.num_data_bytes;
 		char* buf = msg->data;
-		while (bytes_left > 0) {
-			int bytes_read = socket_recv(c->sockfd, buf, bytes_left, 0);
-			bytes_left -= bytes_read;
-			buf += bytes_read;
+		int bytes_read = socket_recv(c->sockfd, buf, bytes_left, MSG_WAITALL);
+		
+		if (bytes_read != bytes_left) {
+			fprintf(stderr, "Something went wrong recv:data\n");
+			exit(-1);
 		}
+
 	}
 
 	// Add timestamp to header

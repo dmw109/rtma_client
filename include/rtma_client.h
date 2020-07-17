@@ -64,6 +64,22 @@ typedef struct {
 
 typedef MSG_TYPE Signal;
 
+// Module ID-s of core modules
+#define MID_MESSAGE_MANAGER     0
+#define MID_COMMAND_MODULE      1
+#define MID_APPLICATION_MODULE  2
+#define MID_NETWORK_RELAY       3
+#define MID_STATUS_MODULE       4
+#define MID_QUICKLOGGER         5
+
+#define HID_LOCAL_HOST  0
+#define HID_ALL_HOSTS   0x7FFF
+
+typedef char STRING_DATA[];   //message data type for variable length string messages
+//typedef char* STRING_DATA;   //message data type for variable length string messages
+
+// Used for subscribing to all message types
+#define ALL_MESSAGE_TYPES  0x7FFFFFFF
 // Messages sent by MessageManager to modules
 #define MT_EXIT						0
 #define MT_KILL						1

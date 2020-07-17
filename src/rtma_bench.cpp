@@ -29,7 +29,7 @@ int subscriber_loop(int id, char* server, int port, int num_msgs, int msg_size) 
 	std::chrono::time_point<std::chrono::high_resolution_clock> end;
 
 	int nbytes = rtma_client_send_signal(c, MT_SUBSCRIBER_READY);
-	
+
 	Message msg;
 	while (msg_rcvd < num_msgs) {
 		if (rtma_client_read_message(c, &msg, BLOCKING)) {

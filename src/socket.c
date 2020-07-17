@@ -136,6 +136,10 @@ int socket_recv(sockfd_t sockfd,  char *buf, int len, int flags) {
 	int nbytes = recv(sockfd, buf, len, flags);
 	if (nbytes == SOCKET_ERROR)
 		socket_error();
+	else if (nbytes == 0) {
+		fprintf(stderr, "Connection has been closed.\n");
+		exit(EXIT_FAILURE);
+	}
 	else
 		return nbytes;
 }
