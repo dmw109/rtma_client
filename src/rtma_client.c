@@ -1,7 +1,7 @@
 #include "rtma_client.h"
 
 double rtma_client_get_timestamp(Client *c){
-#ifdef _UNIX_C
+#ifdef __UNIX__
     struct timeval tim;
     if ( gettimeofday(&tim, NULL)  == 0 )
     {
@@ -18,9 +18,9 @@ double rtma_client_get_timestamp(Client *c){
 }
 
 Client* rtma_create_client(MODULE_ID module_id, HOST_ID host_id) {
-	#ifdef _WINDOWS_C
+	#ifdef __WINDOWS__
 	winsock_init();
-	#endif //_WINDOWS_C
+	#endif //__WINDOWS__
 
 	Client* c = (Client *)malloc(sizeof(Client));
 
@@ -33,18 +33,18 @@ Client* rtma_create_client(MODULE_ID module_id, HOST_ID host_id) {
 	c->module_id = module_id;
 	c->host_id = host_id;
 
-	#ifdef _UNIX_C
+	#ifdef __UNIX__
 		c->pid = getpid();
 	#endif
 
-	#ifdef _WINDOWS_C
+	#ifdef __WINDOWS__
 		c->pid = _getpid();
 	#endif
 
 	c->msg_count = 0;
 	c->connected = 0;
 
-	#ifdef _WINDOWS_C
+	#ifdef __WINDOWS__
 		LONGLONG freq;
 		QueryPerformanceFrequency( (LARGE_INTEGER*) &freq);
 		c->perf_counter_freq = (double) freq;
@@ -69,9 +69,9 @@ void rtma_destroy_client(Client *c) {
 	// Free the Client struct
 	free(c);
 
-#ifdef _WINDOWS_C
+#ifdef __WINDOWS__
 	winsock_cleanup();
-#endif //_WINDOWS_C
+#endif //__WINDOWS__
 }
 
 void rtma_client_connect(Client *c, char* server_name, uint16_t port) {

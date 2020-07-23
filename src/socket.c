@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include "socket.h"
 
-#ifdef _WINDOWS_C
+#ifdef __WINDOWS__
 
 // Initialize Winsock DLL
 void winsock_init() {
@@ -14,19 +14,19 @@ void winsock_init() {
 	err = WSAStartup(version_required, &wsaData);
 	switch (err) {
 		case WSASYSNOTREADY:
-			perror("WSAStartup: Underlying network subsystem is not ready for network communication.\n");
+			fprintf(stderr, "WSAStartup: Underlying network subsystem is not ready for network communication.\n");
 			break;
 		case WSAVERNOTSUPPORTED:
-			perror("WSAStartup: The version of Windows Sockets support requested is not provided by this particular Windows Sockets implementation.\n");
+			fprintf(stderr, "WSAStartup: The version of Windows Sockets support requested is not provided by this particular Windows Sockets implementation.\n");
 			break;
 		case WSAEINPROGRESS:
-			perror("WSAStartup: A blocking Windows Sockets 1.1 operation is in progress.\n");
+			fprintf(stderr, "WSAStartup: A blocking Windows Sockets 1.1 operation is in progress.\n");
 	 		break;
 		case WSAEPROCLIM:
-			perror("WSAStartup: A limit on the number of tasks supported by the Windows Sockets implementation has been reached.\n");
+			fprintf(stderr, "WSAStartup: A limit on the number of tasks supported by the Windows Sockets implementation has been reached.\n");
 	 		break;
 		case WSAEFAULT:
-			perror("WSAStartup: The lpWSAData parameter is not a valid pointer.\n");
+			fprintf(stderr, "WSAStartup: The lpWSAData parameter is not a valid pointer.\n");
 			break;
 	}
 
@@ -37,7 +37,7 @@ void winsock_init() {
 
 	// Confirm that winsock DLL supports version 2.2
 	if (LOBYTE(wsaData.wVersion) != 2 || HIBYTE(wsaData.wVersion) != 2) {
-		perror("Could not find a usable version of Winsock.dll\n");
+		fprintf(stderr, "Could not find a usable version of Winsock.dll\n");
 		WSACleanup();
 		exit(EXIT_FAILURE);
 	}
@@ -74,16 +74,16 @@ void socket_error(void) {
 	winsock_cleanup();
 }
 
-#endif //_WINDOWS_C
+#endif //__WINDOWS__
 
-#ifdef _UNIX_C
+#ifdef __UNIX__
 
 void socket_error(void) {
 	perror(strerror(errno));
 	exit(EXIT_FAILURE);
 }
 
-#endif //_UNIX_C
+#endif //__UNIX__
 
 /* SOCKET FUNCTIONS */
 
@@ -167,7 +167,7 @@ int socket_sendall(sockfd_t sockfd, const char* buf, int len, int flags) {
 	return bytes_sent;
 }
 
-#ifdef _WINDOWS_C
+#ifdef __WINDOWS__
 	#define OPTVAL_CAST(x) (char *)(x)
 #else
 	#define OPTVAL_CAST(x) (void *)(x)

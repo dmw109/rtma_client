@@ -1,6 +1,13 @@
 #ifndef _RTMA_CLIENT_H
 #define _RTMA_CLIENT_H
 
+#if defined(_WIN32) || defined(_WIN64) || defined(__WIN32__) || defined(__WINDOWS__)
+	#define __WINDOWS__
+#else
+	#define __UNIX__
+#endif
+
+
 #include "socket.h"
 #include <stdint.h>
 
@@ -12,14 +19,14 @@
 #define NONBLOCKING 0
 #define MAX_DATA_BYTES 4096
 
-#ifdef _WINDOWS_C
-#endif //_WINDOWS_C
+#ifdef __WINDOWS__
+#endif //__WINDOWS__
 
-#ifdef _UNIX_C
+#ifdef __UNIX__
 #define TRUE 1
 #define FALSE 0
 
-#endif //_UNIX_C
+#endif //__UNIX__
 
 #define MSG_TYPE(x) (x.rtma_header.msg_type)
 
@@ -36,7 +43,7 @@ typedef struct {
 	int pid;
 	int msg_count;
 	int connected;
-#ifdef _WINDOWS_C
+#ifdef __WINDOWS__
 	double perf_counter_freq;
 #endif
 }Client;
@@ -140,8 +147,8 @@ typedef struct {
 	int pathname_length;
 } MDF_SAVE_MESSAGE_LOG;
 
-#ifdef _WINDOWS_C
-	#ifndef _STATIC_LIB
+#ifdef __WINDOWS__
+	#ifdef _DYNAMIC_LIB
 		#ifdef RTMA_C_EXPORTS
 			#define RTMA_C_API __declspec(dllexport)
 		#else
@@ -150,8 +157,10 @@ typedef struct {
 	#else
 		#define RTMA_C_API 
 	#endif
+#elif defined(__UNIX__) || defined(__APPLE__) || defined(__MACH__) || defined(__LINUX__) || defined(__FreeBSD__)
+		#define RTMA_C_API //nothing
 #else
-	#define RTMA_C_API 
+	#define RTMA_C_API //nothing
 #endif
 
 #ifdef __cplusplus

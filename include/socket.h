@@ -1,11 +1,18 @@
 #ifndef _SOCKET_H
 #define _SOCKET_H
 
+#if defined(_WIN32) || defined(_WIN64) || defined(__WIN32__) || defined(__WINDOWS__)
+#define __WINDOWS__
+#else
+#define __UNIX__
+#endif
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <stddef.h>
 
-#ifdef _WINDOWS_C
+#ifdef __WINDOWS__
+
 #undef UNICODE
 #ifndef WIN32_LEAN_AND_MEAN
 #define WIN32_LEAN_AND_MEAN
@@ -24,9 +31,7 @@ typedef int socklen_t;
 void winsock_init();
 void winsock_cleanup();
 
-#endif //_WINDOWS_C
-
-#ifdef _UNIX_C
+#else // __UNIX__
 
 #include <errno.h>
 #include <string.h>
@@ -52,7 +57,7 @@ typedef int sockfd_t;
 #define SD_SEND SHUT_WR
 #define SD_RECEIVE SHUT_RD
 
-#endif //_UNIX_C
+#endif
 
 #ifdef __cplusplus
 extern "C" {
