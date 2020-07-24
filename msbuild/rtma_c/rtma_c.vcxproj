@@ -23,7 +23,7 @@
     <ProjectGuid>{E795246A-0271-48EB-ADEB-6EBC20CD9A50}</ProjectGuid>
     <RootNamespace>crtma</RootNamespace>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
-    <ProjectName>rtma_c</ProjectName>
+    <ProjectName>rtma_c_lib</ProjectName>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
@@ -72,25 +72,25 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
-    <OutDir>$(SOLUTIONDIR)..\bin\</OutDir>
-    <IntDir>$(SOLUTIONDIR)..\obj\</IntDir>
+    <OutDir>$(SOLUTIONDIR)..\lib\static\</OutDir>
+    <IntDir>$(SOLUTIONDIR)..\obj\$(PROJECTNAME)\</IntDir>
     <TargetName>$(ProjectName)_debug</TargetName>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
-    <OutDir>$(SOLUTIONDIR)..\bin\</OutDir>
-    <IntDir>$(SOLUTIONDIR)..\obj\</IntDir>
+    <OutDir>$(SOLUTIONDIR)..\lib\static\</OutDir>
+    <IntDir>$(SOLUTIONDIR)..\obj\$(PROJECTNAME)\</IntDir>
     <TargetName>$(ProjectName)_debug</TargetName>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
-    <OutDir>$(SOLUTIONDIR)..\bin\</OutDir>
-    <IntDir>$(SOLUTIONDIR)..\obj\</IntDir>
+    <OutDir>$(SOLUTIONDIR)..\lib\static\</OutDir>
+    <IntDir>$(SOLUTIONDIR)..\obj\$(PROJECTNAME)\</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>false</LinkIncremental>
-    <OutDir>$(SOLUTIONDIR)..\bin\</OutDir>
-    <IntDir>$(SOLUTIONDIR)..\obj\</IntDir>
+    <OutDir>$(SOLUTIONDIR)..\lib\static\</OutDir>
+    <IntDir>$(SOLUTIONDIR)..\obj\$(PROJECTNAME)\</IntDir>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
