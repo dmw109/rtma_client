@@ -20,6 +20,7 @@
 #define MAX_DATA_BYTES 4096
 
 #ifdef __WINDOWS__
+#include <process.h>
 #endif //__WINDOWS__
 
 #ifdef __UNIX__
