@@ -74,23 +74,25 @@
     <LinkIncremental>true</LinkIncremental>
     <OutDir>$(SOLUTIONDIR)..\lib\static\</OutDir>
     <IntDir>$(SOLUTIONDIR)..\obj\$(PROJECTNAME)\</IntDir>
-    <TargetName>$(ProjectName)_debug</TargetName>
+    <TargetName>rtma_c_debug</TargetName>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
     <OutDir>$(SOLUTIONDIR)..\lib\static\</OutDir>
     <IntDir>$(SOLUTIONDIR)..\obj\$(PROJECTNAME)\</IntDir>
-    <TargetName>$(ProjectName)_debug</TargetName>
+    <TargetName>rtma_c_debug</TargetName>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
     <OutDir>$(SOLUTIONDIR)..\lib\static\</OutDir>
     <IntDir>$(SOLUTIONDIR)..\obj\$(PROJECTNAME)\</IntDir>
+    <TargetName>rtma_c</TargetName>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>false</LinkIncremental>
     <OutDir>$(SOLUTIONDIR)..\lib\static\</OutDir>
     <IntDir>$(SOLUTIONDIR)..\obj\$(PROJECTNAME)\</IntDir>
+    <TargetName>rtma_c</TargetName>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>

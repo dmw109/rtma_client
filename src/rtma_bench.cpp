@@ -53,7 +53,7 @@ quit:
 	double data_transfer = (double(msg_rcvd) - 1.0) * double(msg_size + sizeof(RTMA_MSG_HEADER)) / double(1024) / double(1024) / dur.count();
 
 	rtma_client_disconnect(c);
-	rtma_destroy_client(c);
+	rtma_destroy_client(&c);
 
 	if (msg_rcvd == num_msgs) {
 		printf("Subscriber[%d] -> %d messages | %d messages/sec | %0.1lf MB/sec | %0.6lf sec\n",
@@ -119,7 +119,7 @@ int publisher_loop(int id, char* server, int port, int num_msgs, int msg_size, i
 	double data_transfer = (double)num_msgs * (double)(msg_size + sizeof(RTMA_MSG_HEADER)) / (double)1024 / (double)1024 / dur.count();
 
 	rtma_client_disconnect(c);
-	rtma_destroy_client(c);
+	rtma_destroy_client(&c);
 	free(msg_data);
 
 	printf("Publisher[%d] -> %d messages | %d messages/sec | %0.1lf MB/sec | %0.6lf sec\n",

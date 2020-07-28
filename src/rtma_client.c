@@ -56,18 +56,22 @@ Client* rtma_create_client(MODULE_ID module_id, HOST_ID host_id) {
 	return c;
 }
 
-void rtma_destroy_client(Client *c) {
-	if (c == NULL)
+void rtma_destroy_client(Client **c) {
+
+	Client* cp = *c;
+
+	if (cp == NULL)
 		return;
 
 	// Close the underlying socket
-	if (c->sockfd != INVALID_SOCKET) {
-		socket_shutdown(c->sockfd, SD_BOTH);
-		socket_close(c->sockfd);
+	if (cp->sockfd != INVALID_SOCKET) {
+		socket_shutdown(cp->sockfd, SD_BOTH);
+		socket_close(cp->sockfd);
 	}
 	
 	// Free the Client struct
-	free(c);
+	free(cp);
+	*c = NULL;
 
 #ifdef __WINDOWS__
 	winsock_cleanup();
@@ -130,8 +134,8 @@ void rtma_client_connect(Client *c, char* server_name, uint16_t port) {
 		}
 	}
 	else {
-		rtma_destroy_client(c);
-		perror("rtma_client_connect:Failed to receive acknowledgement from server.\n");
+		rtma_destroy_client(&c);
+		fprintf(stderr, "rtma_client_connect:Failed to receive acknowledgement from server.\n");
 	}
 }
 

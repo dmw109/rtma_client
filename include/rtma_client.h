@@ -183,7 +183,7 @@ extern "C" {
 	RTMA_C_API void rtma_client_resume_subscription(Client* c, MSG_TYPE msg_type);
 	RTMA_C_API void rtma_client_pause_subscription(Client* c, MSG_TYPE msg_type);
 	RTMA_C_API void rtma_client_disconnect(Client* c);
-	RTMA_C_API void rtma_destroy_client(Client* c);
+	RTMA_C_API void rtma_destroy_client(Client** c);
 
 	RTMA_C_API void rtma_message_print(Message* msg);
 
