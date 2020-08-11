@@ -12,10 +12,6 @@
 #define MT_SUBSCRIBER_READY 5679
 #define MT_SUBSCRIBER_DONE 5680
 
-typedef struct {
-	char data[];
-}MDF_TEST_MSG;
-
 
 int subscriber_loop(int id, char* server, int port, int num_msgs, int msg_size) {
 	Client* c = rtma_create_client(0, 0);
@@ -46,11 +42,10 @@ int subscriber_loop(int id, char* server, int port, int num_msgs, int msg_size) 
 		}
 	}
 
-	rtma_client_send_signal(c, MT_SUBSCRIBER_DONE);
-
 quit:
+	rtma_client_send_signal(c, MT_SUBSCRIBER_DONE);
 	std::chrono::duration<double> dur = end - start;
-	double data_transfer = (double(msg_rcvd) - 1.0) * double(msg_size + sizeof(RTMA_MSG_HEADER)) / double(1024) / double(1024) / dur.count();
+	double data_transfer = (double(msg_rcvd) - 1.0) * double(msg_size + sizeof(RTMA_MSG_HEADER)) / double(1e6) / dur.count();
 
 	rtma_client_disconnect(c);
 	rtma_destroy_client(&c);
@@ -92,17 +87,17 @@ int publisher_loop(int id, char* server, int port, int num_msgs, int msg_size, i
 			switch (MSG_TYPE(msg)) {
 			case MT_SUBSCRIBER_READY:
 				subscribers_ready++;
-				break;
+				continue;
 			}
 		}
 	}
 
 	size_t packet_size = msg_size * sizeof(char);
-	MDF_TEST_MSG* msg_data = (MDF_TEST_MSG*)malloc(packet_size);
+	char* msg_data = (char*)malloc(packet_size);
 
 	// Add some dummy data to send
 	for (int i = 0; i < msg_size; i++) {
-		msg_data->data[i] = i % 128;
+		msg_data[i] = i % 128;
 	}
 
 	auto start = std::chrono::high_resolution_clock::now();
@@ -116,7 +111,7 @@ int publisher_loop(int id, char* server, int port, int num_msgs, int msg_size, i
 	auto end = std::chrono::high_resolution_clock::now();
 	std::chrono::duration<double> dur = end - start;
 
-	double data_transfer = (double)num_msgs * (double)(msg_size + sizeof(RTMA_MSG_HEADER)) / (double)1024 / (double)1024 / dur.count();
+	double data_transfer = (double)num_msgs * (double)(msg_size + sizeof(RTMA_MSG_HEADER)) / double(1e6) / dur.count();
 
 	rtma_client_disconnect(c);
 	rtma_destroy_client(&c);
@@ -196,16 +191,20 @@ int main(int argc, char** argv) {
 	rtma_client_connect(c, server, port);
 	rtma_client_subscribe(c, MT_EXIT);
 	rtma_client_subscribe(c, MT_PUBLISHER_READY);
+	rtma_client_subscribe(c, MT_PUBLISHER_DONE);
 	rtma_client_subscribe(c, MT_SUBSCRIBER_DONE);
 	rtma_client_send_module_ready(c);
 
 	std::vector<std::thread> publishers;
 	std::vector<std::thread> subscribers;
 
-	printf("Initializing publisher threads...\n");
+	printf("Packet Size: %d bytes\n", msg_size);
+	printf("Sending %d messsage...\n", num_msgs);
 
-	for (int i = 0; i < num_publishers; i++)
+	//printf("Initializing publisher threads...\n");
+	for (int i = 0; i < num_publishers; i++) {
 		publishers.push_back(std::thread(publisher_loop, i + 1, server, port, num_msgs / num_publishers, msg_size, num_subscribers));
+	}
 
 	// Wait for publisher threads to be established
 	Message msg;
@@ -215,35 +214,33 @@ int main(int argc, char** argv) {
 			switch (MSG_TYPE(msg)) {
 			case MT_PUBLISHER_READY:
 				publishers_ready++;
-				break;
+				continue;
 			}
 		}
 	}
 
-	printf("Waiting for subscriber threads...\n");
+	//printf("Waiting for subscriber threads...\n");
 	for (int i = 0; i < num_subscribers; i++)
 		subscribers.push_back(std::thread(subscriber_loop, i + 1, server, port, num_msgs, msg_size));
 
-	printf("Starting Test...\n");
-
-	printf("Total RTMA Packet Size: %d bytes\n", sizeof(RTMA_MSG_HEADER) + msg_size);
+	//printf("Starting Test...\n");
 	
 	//Wait for subscribers to finish
-	double abort_timeout = max(num_msgs / 10000.0, 10.0);
+	double abort_timeout = 30;
 	auto abort_start = std::chrono::high_resolution_clock::now();
 
 	int subscribers_done = 0;
 	int publishers_done = 0;
 
-	while ( (subscribers_done < num_subscribers) && (publishers_done < num_publishers) ) {
+	while ( (subscribers_done < num_subscribers) || (publishers_done < num_publishers) ) {
 		if (rtma_client_read_message(c, &msg, 0.100)) {
 			switch (MSG_TYPE(msg)) {
 			case MT_SUBSCRIBER_DONE:
 				subscribers_done++;
-				break;
+				continue;
 			case MT_PUBLISHER_DONE:
 				publishers_done++;
-				break;
+				continue;
 			}
 		}
 
@@ -253,7 +250,6 @@ int main(int argc, char** argv) {
 		if (dur.count() > abort_timeout) {
 			printf("Test Timeout! Sending Exit Signal...\n");
 			rtma_client_send_signal(c, MT_EXIT);
-			break;
 		}
 	}
 
