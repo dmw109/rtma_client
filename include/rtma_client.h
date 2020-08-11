@@ -19,6 +19,10 @@
 #define NONBLOCKING 0
 #define MAX_DATA_BYTES 4096
 
+// Error Codes
+#define RTMA_NO_ERROR 0
+#define RTMA_ERROR_ALREADY_CONNECTED 1
+
 #ifdef __WINDOWS__
 #include <process.h>
 #endif //__WINDOWS__
@@ -171,7 +175,7 @@ extern "C" {
 	RTMA_C_API Client* rtma_create_client(MODULE_ID, HOST_ID);
 	RTMA_C_API int rtma_client_wait_for_acknowledgement(Client* c, Message* msg, double timeout);
 	RTMA_C_API double rtma_client_get_timestamp(Client* c);
-	RTMA_C_API void rtma_client_connect(Client* c, char* server_name, uint16_t port);
+	RTMA_C_API int rtma_client_connect(Client* c, char* server_name, uint16_t port);
 	RTMA_C_API void rtma_client_send_module_ready(Client* c);
 	RTMA_C_API int rtma_client_send_message_to_module(Client* c, MSG_TYPE msg_type, void* msg, size_t len, int dest_mod_id, int dest_host_id, double timeout);
 	RTMA_C_API int rtma_client_send_signal_to_module(Client* c, Signal sig_type, int dest_mod_id, int dest_host_id, double timeout);

@@ -78,9 +78,15 @@ void rtma_destroy_client(Client **c) {
 #endif //__WINDOWS__
 }
 
-void rtma_client_connect(Client *c, char* server_name, uint16_t port) {
+int rtma_client_connect(Client *c, char* server_name, uint16_t port) {
 	struct addrinfo hints;
 	struct addrinfo* res = NULL;
+
+
+	if (c->connected) {
+		fprintf(stderr, "Client already has an active connection.\n");
+		return RTMA_ERROR_ALREADY_CONNECTED;
+	}
 
 	memset(&hints, '\0', sizeof hints);
 
@@ -137,6 +143,8 @@ void rtma_client_connect(Client *c, char* server_name, uint16_t port) {
 		rtma_destroy_client(&c);
 		fprintf(stderr, "rtma_client_connect:Failed to receive acknowledgement from server.\n");
 	}
+
+	return RTMA_NO_ERROR;
 }
 
 void rtma_client_disconnect(Client *c) {
